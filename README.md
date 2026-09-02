@@ -1,5 +1,7 @@
 # Stock Monitor
 
+> **Disclaimer:** This is an experimental repo for trying out agentic coding and harness engineering. Don't take the functionality seriously.
+
 [English](#english) | [中文](#中文)
 
 ---
@@ -132,6 +134,8 @@ src/
 ---
 
 ## 中文
+
+> **说明：** 这是一个用于探索智能体编程（agentic coding）和 harness 工程的实验性仓库，请勿将其功能当回事。
 
 AI 驱动的股票新闻监控系统，通过 Telegram Bot 推送新闻摘要和突发新闻提醒。
 
