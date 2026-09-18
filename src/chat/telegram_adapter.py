@@ -7,7 +7,7 @@ import asyncio
 from telegram import Update, BotCommand, MenuButtonCommands, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler
 from src.chat.base import ChatAdapter
-from src.stock_manager import StockManager
+from src.stock_manager import PRIORITY_RANK, Priority, StockManager
 from src.locale import t
 
 logger = logging.getLogger(__name__)
@@ -42,14 +42,19 @@ class TelegramAdapter(ChatAdapter):
         await update.message.reply_text(t("help"), parse_mode='Markdown')
 
     async def cmd_add(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if not context.args:
+        if not context.args or len(context.args) > 2:
             await update.message.reply_text(t("add_usage"))
             return
 
         ticker = context.args[0].upper()
+        try:
+            priority = Priority.parse(context.args[1] if len(context.args) > 1 else Priority.MEDIUM)
+        except ValueError:
+            await update.message.reply_text(t("priority_invalid"))
+            return
 
-        if self.stock_manager.add_stock(ticker):
-            await update.message.reply_text(t("add_ok", ticker=ticker))
+        if self.stock_manager.add_stock(ticker, priority=priority):
+            await update.message.reply_text(t("add_ok", ticker=ticker, priority=priority.value))
 
             if self.fetch_ticker_callback:
                 success = await self.fetch_ticker_callback(ticker)
@@ -60,6 +65,25 @@ class TelegramAdapter(ChatAdapter):
                     await update.message.reply_text(t("add_fail", ticker=ticker))
         else:
             await update.message.reply_text(t("add_exists", ticker=ticker))
+
+    async def cmd_priority(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if len(context.args) != 2:
+            await update.message.reply_text(t("priority_usage"))
+            return
+
+        ticker = context.args[0].upper()
+        try:
+            priority = Priority.parse(context.args[1])
+        except ValueError:
+            await update.message.reply_text(t("priority_invalid"))
+            return
+
+        if self.stock_manager.update_priority(ticker, priority):
+            await update.message.reply_text(
+                t("priority_ok", ticker=ticker, priority=priority.value)
+            )
+        else:
+            await update.message.reply_text(t("priority_not_found", ticker=ticker))
 
     async def cmd_remove(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not context.args:
@@ -76,7 +100,10 @@ class TelegramAdapter(ChatAdapter):
             await update.message.reply_text(t("remove_not_found", ticker=ticker))
 
     async def cmd_list(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        stocks = self.stock_manager.list_stocks()
+        stocks = sorted(
+            self.stock_manager.list_stocks(),
+            key=lambda stock: PRIORITY_RANK[stock.priority],
+        )
 
         if not stocks:
             await update.message.reply_text(t("list_empty"))
@@ -86,7 +113,7 @@ class TelegramAdapter(ChatAdapter):
 
         keyboard = []
         for stock in stocks:
-            msg += f"• ${stock.ticker}"
+            msg += f"• [{stock.priority.value}] ${stock.ticker}"
             if stock.name:
                 msg += f" - {stock.name}"
             msg += "\n"
@@ -264,6 +291,7 @@ class TelegramAdapter(ChatAdapter):
         self.app.add_handler(CommandHandler("start", self.cmd_start))
         self.app.add_handler(CommandHandler("help", self.cmd_help))
         self.app.add_handler(CommandHandler("add", self.cmd_add))
+        self.app.add_handler(CommandHandler("priority", self.cmd_priority))
         self.app.add_handler(CommandHandler("remove", self.cmd_remove))
         self.app.add_handler(CommandHandler("list", self.cmd_list))
         self.app.add_handler(CommandHandler("summary", self.cmd_summary))
@@ -281,6 +309,7 @@ class TelegramAdapter(ChatAdapter):
             BotCommand("summary", t("cmd_summary")),
             BotCommand("list", t("cmd_list")),
             BotCommand("add", t("cmd_add")),
+            BotCommand("priority", t("cmd_priority")),
             BotCommand("remove", t("cmd_remove")),
             BotCommand("health", t("cmd_health")),
             BotCommand("help", t("cmd_help")),

@@ -3,6 +3,7 @@ STRINGS = {
     "cmd_summary": "Get market summary for all stocks",
     "cmd_list": "View watchlist",
     "cmd_add": "Add stock to watchlist",
+    "cmd_priority": "Change a stock priority",
     "cmd_remove": "Remove stock from watchlist",
     "cmd_help": "Show help",
     "cmd_health": "Check bot health status",
@@ -12,7 +13,8 @@ STRINGS = {
         "👋 **Welcome to Stock Monitor!**\n\n"
         "I help you track financial news and social media discussions.\n\n"
         "**Commands:**\n"
-        "/add <TICKER> - Add stock (e.g., /add AAPL)\n"
+        "/add <TICKER> [PRIORITY] - Add stock\n"
+        "/priority <TICKER> <PRIORITY> - Change priority\n"
         "/remove <TICKER> - Remove stock\n"
         "/list - View watchlist\n"
         "/summary - Get market summary\n"
@@ -27,7 +29,8 @@ STRINGS = {
     "help": (
         "**Available Commands:**\n\n"
         "📌 **Stock Management:**\n"
-        "/add TICKER - Add stock (e.g., /add TSLA)\n"
+        "/add TICKER [PRIORITY] - Add stock (e.g., /add TSLA HIGH)\n"
+        "/priority TICKER PRIORITY - Change priority\n"
         "/remove TICKER - Remove stock\n"
         "/list - View watchlist\n\n"
         "📊 **Information:**\n"
@@ -44,11 +47,17 @@ STRINGS = {
     ),
 
     # /add
-    "add_usage": "❌ Usage: /add <TICKER>\nExample: /add AAPL",
-    "add_ok": "✅ Added ${ticker}, fetching data...",
+    "add_usage": "❌ Usage: /add <TICKER> [PRIORITY]\nExample: /add AAPL HIGH",
+    "add_ok": "✅ Added ${ticker} with {priority} priority, fetching data...",
     "add_done": "✅ ${ticker} ready: {brief}",
     "add_fail": "⚠️ ${ticker} fetch failed, will retry on next refresh",
     "add_exists": "⚠️ ${ticker} is already in your watchlist",
+
+    # /priority
+    "priority_usage": "❌ Usage: /priority <TICKER> <PRIORITY>\nExample: /priority AAPL CRITICAL",
+    "priority_invalid": "❌ Priority must be LOW, MEDIUM, HIGH, or CRITICAL",
+    "priority_ok": "✅ ${ticker} priority changed to {priority}",
+    "priority_not_found": "⚠️ ${ticker} not found in your watchlist",
 
     # /remove
     "remove_usage": "❌ Usage: /remove <TICKER>\nExample: /remove AAPL",

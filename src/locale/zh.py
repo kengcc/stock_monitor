@@ -3,6 +3,7 @@ STRINGS = {
     "cmd_summary": "获取所有股票的市场摘要",
     "cmd_list": "查看关注列表",
     "cmd_add": "添加股票到关注列表",
+    "cmd_priority": "修改股票优先级",
     "cmd_remove": "从关注列表移除股票",
     "cmd_help": "显示帮助信息",
     "cmd_health": "检查机器人运行状态",
@@ -12,7 +13,8 @@ STRINGS = {
         "👋 **欢迎使用 Stock Monitor!**\n\n"
         "我帮你追踪股票新闻和社交媒体讨论。\n\n"
         "**命令:**\n"
-        "/add <代码> - 添加股票 (如 /add AAPL)\n"
+        "/add <代码> [优先级] - 添加股票\n"
+        "/priority <代码> <优先级> - 修改优先级\n"
         "/remove <代码> - 移除股票\n"
         "/list - 查看关注列表\n"
         "/summary - 获取市场摘要\n"
@@ -27,7 +29,8 @@ STRINGS = {
     "help": (
         "**可用命令:**\n\n"
         "📌 **股票管理:**\n"
-        "/add 代码 - 添加股票 (如 /add TSLA)\n"
+        "/add 代码 [优先级] - 添加股票 (如 /add TSLA HIGH)\n"
+        "/priority 代码 优先级 - 修改优先级\n"
         "/remove 代码 - 移除股票\n"
         "/list - 查看关注列表\n\n"
         "📊 **信息查询:**\n"
@@ -44,11 +47,17 @@ STRINGS = {
     ),
 
     # /add
-    "add_usage": "❌ 用法: /add <代码>\n示例: /add AAPL",
-    "add_ok": "✅ 已添加 ${ticker}，正在抓取数据...",
+    "add_usage": "❌ 用法: /add <代码> [优先级]\n示例: /add AAPL HIGH",
+    "add_ok": "✅ 已添加 ${ticker}，优先级为 {priority}，正在抓取数据...",
     "add_done": "✅ ${ticker} 数据就绪: {brief}",
     "add_fail": "⚠️ ${ticker} 抓取失败，下次定时刷新时重试",
     "add_exists": "⚠️ ${ticker} 已在关注列表中",
+
+    # /priority
+    "priority_usage": "❌ 用法: /priority <代码> <优先级>\n示例: /priority AAPL CRITICAL",
+    "priority_invalid": "❌ 优先级必须为 LOW、MEDIUM、HIGH 或 CRITICAL",
+    "priority_ok": "✅ ${ticker} 的优先级已修改为 {priority}",
+    "priority_not_found": "⚠️ ${ticker} 不在关注列表中",
 
     # /remove
     "remove_usage": "❌ 用法: /remove <代码>\n示例: /remove AAPL",
