@@ -221,8 +221,15 @@ class StockMonitor:
         if self.last_fetch_time is not None:
             last_fetch = self.last_fetch_time.strftime('%Y-%m-%d %H:%M:%S %Z')
 
+        if self._shutdown:
+            status = 'shutting down'
+        elif self.last_fetch_time is None:
+            status = 'starting'
+        else:
+            status = 'ok'
+
         return {
-            'status': 'shutting_down' if self._shutdown else 'ok',
+            'status': status,
             'timestamp': now.strftime('%Y-%m-%d %H:%M:%S %Z'),
             'last_fetch': last_fetch,
             'watchlist_count': len(self.stock_manager.get_all_tickers()),

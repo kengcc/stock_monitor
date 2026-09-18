@@ -59,7 +59,7 @@ def test_cmd_health_replies_with_callback_data():
         args, kwargs = update.message.reply_text.await_args
         assert "ok" in args[0]
         assert "2026-09-18 13:00:00 UTC" in args[0]
-        assert kwargs.get("parse_mode") == "Markdown"
+        assert "parse_mode" not in kwargs
 
     asyncio.run(_run())
 
@@ -96,6 +96,37 @@ def test_get_health_status_shape():
     assert health["watchlist_count"] == 2
     assert health["last_fetch"] is not None
     assert "timestamp" in health
+
+
+def test_get_health_status_is_starting_before_first_fetch():
+    from main import StockMonitor
+
+    monitor = object.__new__(StockMonitor)
+    monitor.timezone = pytz.UTC
+    monitor._shutdown = False
+    monitor.last_fetch_time = None
+    monitor.stock_manager = MagicMock()
+    monitor.stock_manager.get_all_tickers.return_value = []
+
+    health = StockMonitor.get_health_status(monitor)
+
+    assert health["status"] == "starting"
+    assert health["last_fetch"] is None
+
+
+def test_get_health_status_is_shutting_down():
+    from main import StockMonitor
+
+    monitor = object.__new__(StockMonitor)
+    monitor.timezone = pytz.UTC
+    monitor._shutdown = True
+    monitor.last_fetch_time = None
+    monitor.stock_manager = MagicMock()
+    monitor.stock_manager.get_all_tickers.return_value = []
+
+    health = StockMonitor.get_health_status(monitor)
+
+    assert health["status"] == "shutting down"
 
 
 def test_health_handler_registered_in_setup():

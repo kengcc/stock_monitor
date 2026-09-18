@@ -72,10 +72,10 @@ STRINGS = {
 
     # /health
     "health_ok": (
-        "✅ **状态:** {status}\n"
-        "🕐 **时间:** {timestamp}\n"
-        "📋 **关注列表:** {watchlist_count} 只\n"
-        "🔄 **上次抓取:** {last_fetch}"
+        "✅ 状态: {status}\n"
+        "🕐 时间: {timestamp}\n"
+        "📋 关注列表: {watchlist_count} 只\n"
+        "🔄 上次抓取: {last_fetch}"
     ),
     "health_never_fetched": "尚未抓取",
     "health_unavailable": "❌ 无法获取运行状态",

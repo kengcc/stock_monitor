@@ -118,10 +118,7 @@ class TelegramAdapter(ChatAdapter):
             health = self.health_callback()
             if asyncio.iscoroutine(health):
                 health = await health
-            await update.message.reply_text(
-                build_health_reply(health),
-                parse_mode='Markdown',
-            )
+            await update.message.reply_text(build_health_reply(health))
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             await update.message.reply_text(t("health_unavailable"))

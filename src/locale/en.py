@@ -72,10 +72,10 @@ STRINGS = {
 
     # /health
     "health_ok": (
-        "✅ **Status:** {status}\n"
-        "🕐 **Time:** {timestamp}\n"
-        "📋 **Watchlist:** {watchlist_count} stocks\n"
-        "🔄 **Last fetch:** {last_fetch}"
+        "✅ Status: {status}\n"
+        "🕐 Time: {timestamp}\n"
+        "📋 Watchlist: {watchlist_count} stocks\n"
+        "🔄 Last fetch: {last_fetch}"
     ),
     "health_never_fetched": "never",
     "health_unavailable": "❌ Health status unavailable",
