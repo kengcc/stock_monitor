@@ -16,6 +16,7 @@ STRINGS = {
         "/remove <TICKER> - Remove stock\n"
         "/list - View watchlist\n"
         "/summary - Get market summary\n"
+        "/health - Check bot health status\n"
         "/help - Show help\n\n"
         "📊 **Auto Updates:**\n"
         "• Daily summary before market open (7:30 AM ET)\n"

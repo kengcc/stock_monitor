@@ -16,6 +16,7 @@ STRINGS = {
         "/remove <代码> - 移除股票\n"
         "/list - 查看关注列表\n"
         "/summary - 获取市场摘要\n"
+        "/health - 检查机器人运行状态\n"
         "/help - 显示帮助\n\n"
         "📊 **自动推送:**\n"
         "• 每日开盘前摘要 (7:30 AM ET)\n"

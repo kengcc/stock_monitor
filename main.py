@@ -6,6 +6,7 @@ Flow:
 - Every hour: fetch news → AI analyze → cache results → check breaking news
 - 07:30 daily: fetch+analyze+cache → auto-push summary to chat
 - /summary command: instantly return cached results (no re-fetch)
+- /health command: report runtime status and last fetch time
 """
 
 import os

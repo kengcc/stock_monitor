@@ -20,7 +20,7 @@ AI-powered stock news monitoring with Telegram bot interface. Aggregates news fr
 
 - **Multi-source news aggregation** - Yahoo Finance, Google News, Seeking Alpha, MarketWatch (free RSS), Finnhub API
 - **AI-powered analysis** - Works with any OpenAI-compatible API (DeepSeek, OpenAI, Groq, Ollama, etc.)
-- **Telegram bot** - `/add`, `/remove`, `/list`, `/summary` commands with inline buttons
+- **Telegram bot** - `/add`, `/remove`, `/list`, `/summary`, `/health` commands with inline buttons
 - **Two-level summary** - Compact overview list + click for detailed analysis
 - **Daily auto-push** - Summary before US market open (7:30 AM ET)
 - **Breaking news alerts** - Hourly check for urgent high-impact news
@@ -86,6 +86,7 @@ Any OpenAI-compatible API works:
 | `/remove TICKER` | Remove stock |
 | `/list` | View watchlist with Yahoo Finance links |
 | `/summary` | Get cached summary (click for details) |
+| `/health` | Check bot runtime status |
 | `/help` | Show help |
 
 ### How It Works
@@ -98,6 +99,7 @@ Every 60 min → Fetch news (RSS+API) → AI analyze → Update cache → Check 
 07:30 daily → Fetch + Analyze → Auto-push to Telegram
                 ↓
 /summary → Return cached result instantly (no API call)
+/health → Show runtime status and last fetch time
 ```
 
 ### News Sources
@@ -149,7 +151,7 @@ AI 驱动的股票新闻监控系统，通过 Telegram Bot 推送新闻摘要和
 
 - **多源新闻聚合** - Yahoo Finance、Google News、Seeking Alpha、MarketWatch (免费 RSS) + Finnhub API
 - **AI 智能分析** - 支持任意 OpenAI 兼容 API（DeepSeek、OpenAI、Groq、Ollama 等）
-- **Telegram 机器人** - `/add`、`/remove`、`/list`、`/summary` 命令 + 内联按钮交互
+- **Telegram 机器人** - `/add`、`/remove`、`/list`、`/summary`、`/health` 命令 + 内联按钮交互
 - **两级摘要** - 紧凑概览列表 + 点击查看详细分析
 - **每日自动推送** - 美股开盘前自动推送摘要（7:30 AM ET）
 - **突发新闻提醒** - 每小时检测紧急高影响新闻
@@ -215,6 +217,7 @@ python main.py
 | `/remove 代码` | 移除股票 |
 | `/list` | 查看关注列表（附 Yahoo Finance 链接） |
 | `/summary` | 获取缓存摘要（点击查看详情） |
+| `/health` | 检查机器人运行状态 |
 | `/help` | 显示帮助 |
 
 ### 工作流程
@@ -227,6 +230,7 @@ python main.py
 每日 07:30 → 抓取 + 分析 → 自动推送到 Telegram
           ↓
 /summary → 直接返回缓存结果（无 API 调用）
+/health → 显示运行状态和上次抓取时间
 ```
 
 ### 新闻源
