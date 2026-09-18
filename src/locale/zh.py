@@ -5,6 +5,7 @@ STRINGS = {
     "cmd_add": "添加股票到关注列表",
     "cmd_remove": "从关注列表移除股票",
     "cmd_help": "显示帮助信息",
+    "cmd_health": "检查机器人运行状态",
 
     # /start
     "welcome": (
@@ -30,6 +31,7 @@ STRINGS = {
         "/list - 查看关注列表\n\n"
         "📊 **信息查询:**\n"
         "/summary - 获取最新摘要（点击查看详情）\n"
+        "/health - 检查机器人运行状态\n"
         "/help - 显示此帮助\n\n"
         "⏰ **自动更新:**\n"
         "• 每日摘要: 开盘前2小时 (7:30 AM ET)\n"
@@ -67,6 +69,16 @@ STRINGS = {
     "summary_unavailable": "❌ 摘要功能不可用",
     "summary_loading": "⏳ 正在获取最新摘要...",
     "summary_no_cache": "⚠️ 暂无缓存数据，正在抓取中...",
+
+    # /health
+    "health_ok": (
+        "✅ **状态:** {status}\n"
+        "🕐 **时间:** {timestamp}\n"
+        "📋 **关注列表:** {watchlist_count} 只\n"
+        "🔄 **上次抓取:** {last_fetch}"
+    ),
+    "health_never_fetched": "尚未抓取",
+    "health_unavailable": "❌ 无法获取运行状态",
 
     # Detail view
     "detail_header": "**💼 ${ticker} 详细分析**\n",

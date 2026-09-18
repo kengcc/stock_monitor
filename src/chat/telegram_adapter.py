@@ -13,6 +13,18 @@ from src.locale import t
 logger = logging.getLogger(__name__)
 
 
+def build_health_reply(health: dict) -> str:
+    """Format a /health reply from a status dict. Pure helper for easy testing."""
+    last_fetch = health.get('last_fetch') or t("health_never_fetched")
+    return t(
+        "health_ok",
+        status=health.get('status', 'ok'),
+        timestamp=health.get('timestamp', ''),
+        watchlist_count=health.get('watchlist_count', 0),
+        last_fetch=last_fetch,
+    )
+
+
 class TelegramAdapter(ChatAdapter):
     """Telegram bot adapter."""
 
@@ -96,6 +108,23 @@ class TelegramAdapter(ChatAdapter):
                 logger.error(f"Summary generation failed: {e}")
         else:
             await update.message.reply_text(t("summary_unavailable"))
+
+    async def cmd_health(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not self.health_callback:
+            await update.message.reply_text(t("health_unavailable"))
+            return
+
+        try:
+            health = self.health_callback()
+            if asyncio.iscoroutine(health):
+                health = await health
+            await update.message.reply_text(
+                build_health_reply(health),
+                parse_mode='Markdown',
+            )
+        except Exception as e:
+            logger.error(f"Health check failed: {e}")
+            await update.message.reply_text(t("health_unavailable"))
 
     async def button_callback(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         query = update.callback_query
@@ -241,6 +270,7 @@ class TelegramAdapter(ChatAdapter):
         self.app.add_handler(CommandHandler("remove", self.cmd_remove))
         self.app.add_handler(CommandHandler("list", self.cmd_list))
         self.app.add_handler(CommandHandler("summary", self.cmd_summary))
+        self.app.add_handler(CommandHandler("health", self.cmd_health))
         self.app.add_handler(CallbackQueryHandler(self.button_callback))
         self.app.add_error_handler(self._error_handler)
 
@@ -255,6 +285,7 @@ class TelegramAdapter(ChatAdapter):
             BotCommand("list", t("cmd_list")),
             BotCommand("add", t("cmd_add")),
             BotCommand("remove", t("cmd_remove")),
+            BotCommand("health", t("cmd_health")),
             BotCommand("help", t("cmd_help")),
         ]
         await self.app.bot.delete_my_commands()

@@ -9,3 +9,4 @@ feedparser>=6.0.10  # RSS feeds
 beautifulsoup4>=4.12.0  # Web scraping
 pytz>=2023.3  # Timezone handling
 aiohttp>=3.9.0  # Async HTTP requests
+pytest>=7.0.0  # Automated tests

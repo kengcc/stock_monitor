@@ -214,6 +214,20 @@ class StockMonitor:
         fetch_time = self.cached_summaries.get('timestamp', 'N/A')
         logger.info(f"Sent cached summary (data from {fetch_time})")
 
+    def get_health_status(self) -> dict:
+        """Return cheap, in-memory health info for /health (no network/AI calls)."""
+        now = datetime.now(self.timezone)
+        last_fetch = None
+        if self.last_fetch_time is not None:
+            last_fetch = self.last_fetch_time.strftime('%Y-%m-%d %H:%M:%S %Z')
+
+        return {
+            'status': 'shutting_down' if self._shutdown else 'ok',
+            'timestamp': now.strftime('%Y-%m-%d %H:%M:%S %Z'),
+            'last_fetch': last_fetch,
+            'watchlist_count': len(self.stock_manager.get_all_tickers()),
+        }
+
     async def run_scheduled_tasks(self):
         """Run scheduled tasks in async context"""
         while not self._shutdown:
@@ -278,6 +292,7 @@ class StockMonitor:
             summary_cb=self.send_cached_summary,
             fetch_ticker_cb=self.fetch_single_ticker,
             cached_ref=self.cached_summaries,
+            health_cb=self.get_health_status,
         )
 
         # Schedule daily summary (07:30 AM ET = 2h before market open)

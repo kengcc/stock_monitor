@@ -19,12 +19,14 @@ class ChatAdapter(ABC):
         self.summary_callback = None
         self.fetch_ticker_callback = None
         self.cached_summaries_ref = None
+        self.health_callback = None
 
-    def set_callbacks(self, summary_cb, fetch_ticker_cb, cached_ref):
+    def set_callbacks(self, summary_cb, fetch_ticker_cb, cached_ref, health_cb=None):
         """Inject callbacks from main monitor."""
         self.summary_callback = summary_cb
         self.fetch_ticker_callback = fetch_ticker_cb
         self.cached_summaries_ref = cached_ref
+        self.health_callback = health_cb
 
     @abstractmethod
     def setup(self):

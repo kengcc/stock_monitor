@@ -5,6 +5,7 @@ STRINGS = {
     "cmd_add": "Add stock to watchlist",
     "cmd_remove": "Remove stock from watchlist",
     "cmd_help": "Show help",
+    "cmd_health": "Check bot health status",
 
     # /start
     "welcome": (
@@ -30,6 +31,7 @@ STRINGS = {
         "/list - View watchlist\n\n"
         "📊 **Information:**\n"
         "/summary - Get latest summary (click for details)\n"
+        "/health - Check bot health status\n"
         "/help - Show this help\n\n"
         "⏰ **Auto Updates:**\n"
         "• Daily summary: 2h before market open (7:30 AM ET)\n"
@@ -67,6 +69,16 @@ STRINGS = {
     "summary_unavailable": "❌ Summary function not available",
     "summary_loading": "⏳ Getting latest summary...",
     "summary_no_cache": "⚠️ No cached data yet, fetching now...",
+
+    # /health
+    "health_ok": (
+        "✅ **Status:** {status}\n"
+        "🕐 **Time:** {timestamp}\n"
+        "📋 **Watchlist:** {watchlist_count} stocks\n"
+        "🔄 **Last fetch:** {last_fetch}"
+    ),
+    "health_never_fetched": "never",
+    "health_unavailable": "❌ Health status unavailable",
 
     # Detail view
     "detail_header": "**💼 ${ticker} Detailed Analysis**\n",
