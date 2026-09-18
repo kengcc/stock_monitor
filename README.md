@@ -135,6 +135,10 @@ src/
     en.py                   # English strings
 ```
 
+### Architecture
+
+See the [Mermaid architecture diagram](docs/architecture/README.md).
+
 ---
 
 ## 中文
@@ -242,6 +246,10 @@ python main.py
 **免费（无需 API Key）：** Yahoo Finance RSS、Google News RSS、Seeking Alpha RSS、MarketWatch RSS
 
 **API（免费额度）：** Finnhub（60次/分钟）、NewsAPI（100次/天）
+
+### 架构图
+
+查看 [Mermaid 架构图](docs/architecture/README.md)。
 
 ---
 
