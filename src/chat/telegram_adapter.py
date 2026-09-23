@@ -144,8 +144,7 @@ class TelegramAdapter(ChatAdapter):
             if stock.name:
                 msg += f" - {stock.name}"
             if stock.review_date:
-                review_date = datetime.fromisoformat(stock.review_date).date()
-                key = "list_review_overdue" if review_date < today else "list_review_date"
+                key = "list_review_overdue" if stock.is_review_overdue(today) else "list_review_date"
                 msg += t(key, review_date=stock.review_date)
             msg += "\n"
 

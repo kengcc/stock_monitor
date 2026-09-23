@@ -55,6 +55,13 @@ class Stock:
         if self.keywords is None:
             self.keywords = []
 
+    def is_review_overdue(self, on_date: date) -> bool:
+        """Return whether the review date is before the supplied local date."""
+        return (
+            self.review_date is not None
+            and date.fromisoformat(self.review_date) < on_date
+        )
+
 
 def parse_review_date(value) -> Optional[str]:
     """Validate and normalize an optional ISO review date."""
@@ -181,4 +188,6 @@ class StockManager:
 
     def update_review_date(self, ticker: str, review_date: Optional[str]) -> bool:
         """Set or clear a stock review date, rejecting invalid dates."""
-        return self.update_stock(ticker, review_date=parse_review_date(review_date))
+        if ticker.upper() not in self.stocks:
+            return False
+        return self.update_stock(ticker, review_date=review_date)

@@ -10,6 +10,8 @@ import pytest
 
 from src.chat.telegram_adapter import TelegramAdapter
 from src.locale import load_locale
+from src.locale.en import STRINGS as EN_STRINGS
+from src.locale.zh import STRINGS as ZH_STRINGS
 from src.stock_manager import StockManager
 
 
@@ -74,7 +76,10 @@ def test_review_command_sets_and_clears_date(tmp_path):
         assert manager.get_stock("AAPL").review_date == "2026-12-31"
         assert "2026-12-31" in update.message.reply_text.await_args.args[0]
 
-        await adapter.cmd_review(update, MagicMock(args=["AAPL", "clear"]))
+        await adapter.cmd_review(update, MagicMock(args=["AAPL", "2027-01-15"]))
+        assert manager.get_stock("AAPL").review_date == "2027-01-15"
+
+        await adapter.cmd_review(update, MagicMock(args=["AAPL", "CLEAR"]))
         assert manager.get_stock("AAPL").review_date is None
         assert "cleared" in update.message.reply_text.await_args.args[0]
 
@@ -93,8 +98,25 @@ def test_review_command_rejects_invalid_date_and_unknown_stock(tmp_path):
         assert manager.get_stock("AAPL").review_date is None
         assert "YYYY-MM-DD" in update.message.reply_text.await_args.args[0]
 
-        await adapter.cmd_review(update, MagicMock(args=["MSFT", "2026-12-31"]))
+        await adapter.cmd_review(update, MagicMock(args=["MSFT", "tomorrow"]))
         assert "not found" in update.message.reply_text.await_args.args[0]
+
+    asyncio.run(run())
+
+
+@pytest.mark.parametrize("args", [[], ["AAPL"], ["AAPL", "2026-12-31", "extra"]])
+def test_review_command_rejects_wrong_argument_count(tmp_path, args):
+    async def run():
+        manager = StockManager(tmp_path / "stocks.json")
+        manager.add_stock("AAPL")
+        adapter = TelegramAdapter(token="fake-token", stock_manager=manager)
+        update = MagicMock()
+        update.message.reply_text = AsyncMock()
+
+        await adapter.cmd_review(update, MagicMock(args=args))
+
+        assert manager.get_stock("AAPL").review_date is None
+        assert "Usage" in update.message.reply_text.await_args.args[0]
 
     asyncio.run(run())
 
@@ -147,3 +169,38 @@ def test_review_handler_is_registered():
             commands.extend(handler.commands)
 
     assert "review" in commands
+
+
+def test_review_strings_exist_in_both_locales():
+    review_keys = {
+        "cmd_review",
+        "review_usage",
+        "review_invalid",
+        "review_ok",
+        "review_cleared",
+        "review_not_found",
+        "list_review_date",
+        "list_review_overdue",
+    }
+
+    assert review_keys <= EN_STRINGS.keys()
+    assert review_keys <= ZH_STRINGS.keys()
+
+
+def test_review_command_is_in_telegram_menu():
+    async def run():
+        adapter = TelegramAdapter(token="fake-token", stock_manager=MagicMock())
+        adapter.app = MagicMock()
+        adapter.app.initialize = AsyncMock()
+        adapter.app.start = AsyncMock()
+        adapter.app.bot.delete_my_commands = AsyncMock()
+        adapter.app.bot.set_my_commands = AsyncMock()
+        adapter.app.bot.set_chat_menu_button = AsyncMock()
+        adapter.app.updater.start_polling = AsyncMock()
+
+        await adapter.start()
+
+        commands = adapter.app.bot.set_my_commands.await_args.args[0]
+        assert "review" in [command.command for command in commands]
+
+    asyncio.run(run())
