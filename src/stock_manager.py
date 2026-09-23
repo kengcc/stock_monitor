@@ -5,6 +5,7 @@ Stock Manager - Manages watched stock list
 
 import json
 import logging
+import re
 from datetime import date
 from enum import Enum
 from pathlib import Path
@@ -67,7 +68,10 @@ def parse_review_date(value) -> Optional[str]:
     """Validate and normalize an optional ISO review date."""
     if value is None:
         return None
-    if not isinstance(value, str):
+    if (
+        not isinstance(value, str)
+        or not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value)
+    ):
         raise ValueError(f"Unsupported review date: {value}")
     try:
         return date.fromisoformat(value).isoformat()

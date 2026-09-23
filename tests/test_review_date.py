@@ -3,6 +3,7 @@
 import asyncio
 import json
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytz
@@ -50,7 +51,10 @@ def test_review_date_can_be_set_updated_cleared_and_reloaded(tmp_path):
     assert StockManager(data_file).get_stock("AAPL").review_date is None
 
 
-@pytest.mark.parametrize("value", ["tomorrow", "2026-02-30", "31-12-2026", ""])
+@pytest.mark.parametrize(
+    "value",
+    ["tomorrow", "2026-02-30", "31-12-2026", "20260923", "2026-W39-3", ""],
+)
 def test_invalid_review_date_is_rejected_without_changes(tmp_path, value):
     data_file = tmp_path / "stocks.json"
     manager = StockManager(data_file)
@@ -136,7 +140,6 @@ def test_list_marks_only_dates_before_today_as_overdue(tmp_path):
 
         with patch("src.chat.telegram_adapter.datetime") as mock_datetime:
             mock_datetime.now.return_value = datetime(2026, 9, 23, 12, tzinfo=pytz.UTC)
-            mock_datetime.fromisoformat.side_effect = datetime.fromisoformat
             await adapter.cmd_list(update, MagicMock())
 
         message = update.message.reply_text.await_args.args[0]
@@ -204,3 +207,9 @@ def test_review_command_is_in_telegram_menu():
         assert "review" in [command.command for command in commands]
 
     asyncio.run(run())
+
+
+def test_review_command_is_documented_in_start_script():
+    start_script = Path(__file__).parents[1] / "start.sh"
+
+    assert "/review" in start_script.read_text()
