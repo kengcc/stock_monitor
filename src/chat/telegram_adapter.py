@@ -4,6 +4,7 @@ Telegram Adapter - Telegram bot implementation of ChatAdapter
 
 import logging
 import asyncio
+from datetime import datetime
 from telegram import Update, BotCommand, MenuButtonCommands, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler
 from src.chat.base import ChatAdapter
@@ -28,9 +29,10 @@ def build_health_reply(health: dict) -> str:
 class TelegramAdapter(ChatAdapter):
     """Telegram bot adapter."""
 
-    def __init__(self, token: str, stock_manager: StockManager, **kwargs):
+    def __init__(self, token: str, stock_manager: StockManager, timezone=None, **kwargs):
         super().__init__(stock_manager=stock_manager)
         self.token = token
+        self.timezone = timezone
         self.app = None
 
     # ── Command handlers ──
@@ -85,6 +87,30 @@ class TelegramAdapter(ChatAdapter):
         else:
             await update.message.reply_text(t("priority_not_found", ticker=ticker))
 
+    async def cmd_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if len(context.args) != 2:
+            await update.message.reply_text(t("review_usage"))
+            return
+
+        ticker = context.args[0].upper()
+        raw_date = context.args[1]
+        review_date = None if raw_date.lower() == "clear" else raw_date
+
+        try:
+            updated = self.stock_manager.update_review_date(ticker, review_date)
+        except ValueError:
+            await update.message.reply_text(t("review_invalid"))
+            return
+
+        if not updated:
+            await update.message.reply_text(t("review_not_found", ticker=ticker))
+        elif review_date is None:
+            await update.message.reply_text(t("review_cleared", ticker=ticker))
+        else:
+            await update.message.reply_text(
+                t("review_ok", ticker=ticker, review_date=review_date)
+            )
+
     async def cmd_remove(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not context.args:
             await update.message.reply_text(t("remove_usage"))
@@ -112,10 +138,15 @@ class TelegramAdapter(ChatAdapter):
         msg = t("list_header", count=len(stocks))
 
         keyboard = []
+        today = datetime.now(self.timezone).date() if self.timezone else datetime.now().date()
         for stock in stocks:
             msg += f"• [{stock.priority.value}] ${stock.ticker}"
             if stock.name:
                 msg += f" - {stock.name}"
+            if stock.review_date:
+                review_date = datetime.fromisoformat(stock.review_date).date()
+                key = "list_review_overdue" if review_date < today else "list_review_date"
+                msg += t(key, review_date=stock.review_date)
             msg += "\n"
 
             keyboard.append([
@@ -292,6 +323,7 @@ class TelegramAdapter(ChatAdapter):
         self.app.add_handler(CommandHandler("help", self.cmd_help))
         self.app.add_handler(CommandHandler("add", self.cmd_add))
         self.app.add_handler(CommandHandler("priority", self.cmd_priority))
+        self.app.add_handler(CommandHandler("review", self.cmd_review))
         self.app.add_handler(CommandHandler("remove", self.cmd_remove))
         self.app.add_handler(CommandHandler("list", self.cmd_list))
         self.app.add_handler(CommandHandler("summary", self.cmd_summary))
@@ -310,6 +342,7 @@ class TelegramAdapter(ChatAdapter):
             BotCommand("list", t("cmd_list")),
             BotCommand("add", t("cmd_add")),
             BotCommand("priority", t("cmd_priority")),
+            BotCommand("review", t("cmd_review")),
             BotCommand("remove", t("cmd_remove")),
             BotCommand("health", t("cmd_health")),
             BotCommand("help", t("cmd_help")),

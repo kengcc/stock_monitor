@@ -5,6 +5,7 @@ Stock Manager - Manages watched stock list
 
 import json
 import logging
+from datetime import date
 from enum import Enum
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -45,12 +46,26 @@ class Stock:
     added_date: str = ""
     keywords: List[str] = None  # Additional keywords to monitor
     priority: Priority = Priority.MEDIUM
+    review_date: Optional[str] = None
 
     def __post_init__(self):
         self.ticker = self.ticker.upper()
         self.priority = Priority.parse(self.priority)
+        self.review_date = parse_review_date(self.review_date)
         if self.keywords is None:
             self.keywords = []
+
+
+def parse_review_date(value) -> Optional[str]:
+    """Validate and normalize an optional ISO review date."""
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise ValueError(f"Unsupported review date: {value}")
+    try:
+        return date.fromisoformat(value).isoformat()
+    except ValueError:
+        raise ValueError(f"Unsupported review date: {value}") from None
 
 
 class StockManager:
@@ -153,6 +168,8 @@ class StockManager:
             if hasattr(stock, key):
                 if key == 'priority':
                     value = Priority.parse(value)
+                elif key == 'review_date':
+                    value = parse_review_date(value)
                 setattr(stock, key, value)
 
         self._save()
@@ -161,3 +178,7 @@ class StockManager:
     def update_priority(self, ticker: str, priority) -> bool:
         """Update a stock priority, rejecting unsupported values."""
         return self.update_stock(ticker, priority=Priority.parse(priority))
+
+    def update_review_date(self, ticker: str, review_date: Optional[str]) -> bool:
+        """Set or clear a stock review date, rejecting invalid dates."""
+        return self.update_stock(ticker, review_date=parse_review_date(review_date))

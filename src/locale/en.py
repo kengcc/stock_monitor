@@ -4,6 +4,7 @@ STRINGS = {
     "cmd_list": "View watchlist",
     "cmd_add": "Add stock to watchlist",
     "cmd_priority": "Change a stock priority",
+    "cmd_review": "Set or clear a stock review date",
     "cmd_remove": "Remove stock from watchlist",
     "cmd_help": "Show help",
     "cmd_health": "Check bot health status",
@@ -15,6 +16,7 @@ STRINGS = {
         "**Commands:**\n"
         "/add <TICKER> [PRIORITY] - Add stock\n"
         "/priority <TICKER> <PRIORITY> - Change priority\n"
+        "/review <TICKER> <YYYY-MM-DD|clear> - Set or clear review date\n"
         "/remove <TICKER> - Remove stock\n"
         "/list - View watchlist\n"
         "/summary - Get market summary\n"
@@ -31,6 +33,7 @@ STRINGS = {
         "📌 **Stock Management:**\n"
         "/add TICKER [PRIORITY] - Add stock (e.g., /add TSLA HIGH)\n"
         "/priority TICKER PRIORITY - Change priority\n"
+        "/review TICKER YYYY-MM-DD|clear - Set or clear review date\n"
         "/remove TICKER - Remove stock\n"
         "/list - View watchlist\n\n"
         "📊 **Information:**\n"
@@ -59,6 +62,13 @@ STRINGS = {
     "priority_ok": "✅ ${ticker} priority changed to {priority}",
     "priority_not_found": "⚠️ ${ticker} not found in your watchlist",
 
+    # /review
+    "review_usage": "❌ Usage: /review <TICKER> <YYYY-MM-DD|clear>\nExample: /review AAPL 2026-12-31",
+    "review_invalid": "❌ Review date must use YYYY-MM-DD format",
+    "review_ok": "✅ ${ticker} review date set to {review_date}",
+    "review_cleared": "✅ ${ticker} review date cleared",
+    "review_not_found": "⚠️ ${ticker} not found in your watchlist",
+
     # /remove
     "remove_usage": "❌ Usage: /remove <TICKER>\nExample: /remove AAPL",
     "remove_ok": "✅ Removed ${ticker}",
@@ -68,6 +78,8 @@ STRINGS = {
     "list_empty": "📋 Watchlist is empty\n\nAdd stocks with: /add <TICKER>",
     "list_header": "📊 **Watchlist** ({count} stocks):\n\n",
     "list_btn_remove": "🗑️ Remove",
+    "list_review_date": " — Review: {review_date}",
+    "list_review_overdue": " — ⚠️ Review due: {review_date}",
 
     # /summary
     "summary_header": "📊 **Stock Summary** | 🕐 {timestamp}\n\n",

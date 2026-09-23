@@ -75,16 +75,18 @@ class StockMonitor:
             model=os.getenv('AI_MODEL', 'gpt-4o-mini')
         )
 
+        self.timezone = pytz.timezone(os.getenv('TIMEZONE', 'America/New_York'))
+
         # Create chat adapter
         platform = os.getenv('CHAT_PLATFORM', 'telegram')
         self.chat = create_adapter(
             platform=platform,
             token=os.getenv('TELEGRAM_BOT_TOKEN'),
             stock_manager=self.stock_manager,
+            timezone=self.timezone,
         )
 
         self.chat_id = os.getenv('TELEGRAM_CHAT_ID')
-        self.timezone = pytz.timezone(os.getenv('TIMEZONE', 'America/New_York'))
 
         # Cache: stores latest summaries per ticker
         self.cached_summaries = {}

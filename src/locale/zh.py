@@ -4,6 +4,7 @@ STRINGS = {
     "cmd_list": "查看关注列表",
     "cmd_add": "添加股票到关注列表",
     "cmd_priority": "修改股票优先级",
+    "cmd_review": "设置或清除股票复查日期",
     "cmd_remove": "从关注列表移除股票",
     "cmd_help": "显示帮助信息",
     "cmd_health": "检查机器人运行状态",
@@ -15,6 +16,7 @@ STRINGS = {
         "**命令:**\n"
         "/add <代码> [优先级] - 添加股票\n"
         "/priority <代码> <优先级> - 修改优先级\n"
+        "/review <代码> <YYYY-MM-DD|clear> - 设置或清除复查日期\n"
         "/remove <代码> - 移除股票\n"
         "/list - 查看关注列表\n"
         "/summary - 获取市场摘要\n"
@@ -31,6 +33,7 @@ STRINGS = {
         "📌 **股票管理:**\n"
         "/add 代码 [优先级] - 添加股票 (如 /add TSLA HIGH)\n"
         "/priority 代码 优先级 - 修改优先级\n"
+        "/review 代码 YYYY-MM-DD|clear - 设置或清除复查日期\n"
         "/remove 代码 - 移除股票\n"
         "/list - 查看关注列表\n\n"
         "📊 **信息查询:**\n"
@@ -59,6 +62,13 @@ STRINGS = {
     "priority_ok": "✅ ${ticker} 的优先级已修改为 {priority}",
     "priority_not_found": "⚠️ ${ticker} 不在关注列表中",
 
+    # /review
+    "review_usage": "❌ 用法: /review <代码> <YYYY-MM-DD|clear>\n示例: /review AAPL 2026-12-31",
+    "review_invalid": "❌ 复查日期必须使用 YYYY-MM-DD 格式",
+    "review_ok": "✅ ${ticker} 的复查日期已设为 {review_date}",
+    "review_cleared": "✅ 已清除 ${ticker} 的复查日期",
+    "review_not_found": "⚠️ ${ticker} 不在关注列表中",
+
     # /remove
     "remove_usage": "❌ 用法: /remove <代码>\n示例: /remove AAPL",
     "remove_ok": "✅ 已移除 ${ticker}",
@@ -68,6 +78,8 @@ STRINGS = {
     "list_empty": "📋 关注列表为空\n\n使用 /add <代码> 添加股票",
     "list_header": "📊 **关注列表** ({count} 只):\n\n",
     "list_btn_remove": "🗑️ 移除",
+    "list_review_date": " — 复查: {review_date}",
+    "list_review_overdue": " — ⚠️ 待复查: {review_date}",
 
     # /summary
     "summary_header": "📊 **股票摘要** | 🕐 {timestamp}\n\n",

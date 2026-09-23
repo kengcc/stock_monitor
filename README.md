@@ -20,7 +20,7 @@ AI-powered stock news monitoring with Telegram bot interface. Aggregates news fr
 
 - **Multi-source news aggregation** - Yahoo Finance, Google News, Seeking Alpha, MarketWatch (free RSS), Finnhub API
 - **AI-powered analysis** - Works with any OpenAI-compatible API (DeepSeek, OpenAI, Groq, Ollama, etc.)
-- **Telegram bot** - `/add`, `/remove`, `/priority`, `/list`, `/summary`, `/health` commands with inline buttons
+- **Telegram bot** - `/add`, `/remove`, `/priority`, `/review`, `/list`, `/summary`, `/health` commands with inline buttons
 - **Watchlist priorities** - Rank stocks as CRITICAL, HIGH, MEDIUM, or LOW
 - **Two-level summary** - Compact overview list + click for detailed analysis
 - **Daily auto-push** - Summary before US market open (7:30 AM ET)
@@ -85,6 +85,7 @@ Any OpenAI-compatible API works:
 |---------|-------------|
 | `/add TICKER [PRIORITY]` | Add stock with optional priority (defaults to MEDIUM) |
 | `/priority TICKER PRIORITY` | Change priority to LOW, MEDIUM, HIGH, or CRITICAL |
+| `/review TICKER YYYY-MM-DD\|clear` | Set or clear a stock review date |
 | `/remove TICKER` | Remove stock |
 | `/list` | View watchlist ranked from CRITICAL to LOW |
 | `/summary` | Get cached summary (click for details) |
@@ -157,7 +158,7 @@ AI 驱动的股票新闻监控系统，通过 Telegram Bot 推送新闻摘要和
 
 - **多源新闻聚合** - Yahoo Finance、Google News、Seeking Alpha、MarketWatch (免费 RSS) + Finnhub API
 - **AI 智能分析** - 支持任意 OpenAI 兼容 API（DeepSeek、OpenAI、Groq、Ollama 等）
-- **Telegram 机器人** - `/add`、`/remove`、`/priority`、`/list`、`/summary`、`/health` 命令 + 内联按钮交互
+- **Telegram 机器人** - `/add`、`/remove`、`/priority`、`/review`、`/list`、`/summary`、`/health` 命令 + 内联按钮交互
 - **关注优先级** - 使用 CRITICAL、HIGH、MEDIUM 或 LOW 对股票进行分级
 - **两级摘要** - 紧凑概览列表 + 点击查看详细分析
 - **每日自动推送** - 美股开盘前自动推送摘要（7:30 AM ET）
@@ -222,6 +223,7 @@ python main.py
 |------|------|
 | `/add 代码 [优先级]` | 添加股票并可指定优先级（默认为 MEDIUM） |
 | `/priority 代码 优先级` | 将优先级修改为 LOW、MEDIUM、HIGH 或 CRITICAL |
+| `/review 代码 YYYY-MM-DD\|clear` | 设置或清除股票复查日期 |
 | `/remove 代码` | 移除股票 |
 | `/list` | 按 CRITICAL 到 LOW 查看关注列表 |
 | `/summary` | 获取缓存摘要（点击查看详情） |
