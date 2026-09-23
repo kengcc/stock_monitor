@@ -5,10 +5,12 @@ Stock Manager - Manages watched stock list
 
 import json
 import logging
+import os
 import re
 from datetime import date
 from enum import Enum
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from typing import List, Dict, Optional
 from dataclasses import dataclass, asdict
 
@@ -37,6 +39,10 @@ PRIORITY_RANK = {
     Priority.MEDIUM: 2,
     Priority.LOW: 3,
 }
+
+
+class StockPersistenceError(RuntimeError):
+    """Raised when the watchlist cannot be saved safely."""
 
 
 @dataclass
@@ -88,36 +94,71 @@ class StockManager:
         self._load()
 
     def _load(self):
-        """Load stocks from file"""
+        """Load valid stocks, logging and skipping malformed records."""
         if self.data_file.exists():
             try:
                 with open(self.data_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    migrated = False
-                    for ticker, stock_data in data.items():
-                        if 'priority' not in stock_data:
-                            stock_data = {**stock_data, 'priority': Priority.MEDIUM}
-                            migrated = True
-                        self.stocks[ticker] = Stock(**stock_data)
-                if migrated:
-                    self._save()
-                    logger.info("Migrated existing stocks to MEDIUM priority")
-                logger.info(f"Loaded {len(self.stocks)} stocks")
             except Exception as e:
                 logger.error(f"Failed to load stocks: {e}")
+                return
+
+            if not isinstance(data, dict):
+                logger.error("Failed to load stocks: top-level JSON must be an object")
+                return
+
+            loaded_stocks = {}
+            migrated = False
+            skipped = False
+            for ticker, stock_data in data.items():
+                try:
+                    if 'priority' not in stock_data:
+                        stock_data = {**stock_data, 'priority': Priority.MEDIUM}
+                        migrated = True
+                    loaded_stocks[ticker] = Stock(**stock_data)
+                except Exception as e:
+                    skipped = True
+                    logger.error(f"Skipped invalid saved stock {ticker}: {e}")
+
+            self.stocks = loaded_stocks
+            if migrated and not skipped:
+                try:
+                    self._save()
+                    logger.info("Migrated existing stocks to MEDIUM priority")
+                except StockPersistenceError:
+                    logger.error("Could not persist stock priority migration")
+            logger.info(f"Loaded {len(self.stocks)} stocks")
         else:
             logger.info("No existing stock list found, starting fresh")
 
     def _save(self):
-        """Save stocks to file"""
-        self.data_file.parent.mkdir(parents=True, exist_ok=True)
+        """Atomically save stocks, leaving the existing file intact on failure."""
+        temp_path = None
         try:
-            with open(self.data_file, 'w', encoding='utf-8') as f:
+            self.data_file.parent.mkdir(parents=True, exist_ok=True)
+            with NamedTemporaryFile(
+                'w',
+                encoding='utf-8',
+                dir=self.data_file.parent,
+                prefix=f".{self.data_file.name}.",
+                suffix=".tmp",
+                delete=False,
+            ) as f:
+                temp_path = Path(f.name)
                 data = {ticker: asdict(stock) for ticker, stock in self.stocks.items()}
                 json.dump(data, f, indent=2, ensure_ascii=False)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_path, self.data_file)
             logger.info(f"Saved {len(self.stocks)} stocks")
         except Exception as e:
+            if temp_path is not None:
+                try:
+                    temp_path.unlink(missing_ok=True)
+                except OSError:
+                    logger.warning(f"Failed to remove temporary stock file {temp_path}")
             logger.error(f"Failed to save stocks: {e}")
+            raise StockPersistenceError("Failed to save stock data") from e
 
     def add_stock(self, ticker: str, name: str = "", keywords: List[str] = None,
                   priority: Priority = Priority.MEDIUM) -> bool:
@@ -138,7 +179,11 @@ class StockManager:
             keywords=keywords or [],
             priority=priority,
         )
-        self._save()
+        try:
+            self._save()
+        except StockPersistenceError:
+            del self.stocks[ticker]
+            raise
         logger.info(f"Added stock: {ticker}")
         return True
 
@@ -150,8 +195,13 @@ class StockManager:
             logger.warning(f"Stock {ticker} not found")
             return False
 
+        previous_stocks = self.stocks.copy()
         del self.stocks[ticker]
-        self._save()
+        try:
+            self._save()
+        except StockPersistenceError:
+            self.stocks = previous_stocks
+            raise
         logger.info(f"Removed stock: {ticker}")
         return True
 
@@ -175,15 +225,28 @@ class StockManager:
             return False
 
         stock = self.stocks[ticker]
+        validated_values = {}
         for key, value in kwargs.items():
             if hasattr(stock, key):
                 if key == 'priority':
                     value = Priority.parse(value)
                 elif key == 'review_date':
                     value = parse_review_date(value)
-                setattr(stock, key, value)
+                validated_values[key] = value
 
-        self._save()
+        previous_values = {
+            key: getattr(stock, key)
+            for key in validated_values
+        }
+        for key, value in validated_values.items():
+            setattr(stock, key, value)
+
+        try:
+            self._save()
+        except StockPersistenceError:
+            for key, value in previous_values.items():
+                setattr(stock, key, value)
+            raise
         return True
 
     def update_priority(self, ticker: str, priority) -> bool:

@@ -68,6 +68,7 @@ STRINGS = {
     "review_ok": "✅ ${ticker} review date set to {review_date}",
     "review_cleared": "✅ ${ticker} review date cleared",
     "review_not_found": "⚠️ ${ticker} not found in your watchlist",
+    "review_save_failed": "❌ Failed to save ${ticker} review date",
 
     # /remove
     "remove_usage": "❌ Usage: /remove <TICKER>\nExample: /remove AAPL",

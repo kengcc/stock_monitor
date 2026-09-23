@@ -8,7 +8,7 @@ from datetime import datetime
 from telegram import Update, BotCommand, MenuButtonCommands, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler
 from src.chat.base import ChatAdapter
-from src.stock_manager import PRIORITY_RANK, Priority, StockManager
+from src.stock_manager import PRIORITY_RANK, Priority, StockManager, StockPersistenceError
 from src.locale import t
 
 logger = logging.getLogger(__name__)
@@ -100,6 +100,10 @@ class TelegramAdapter(ChatAdapter):
             updated = self.stock_manager.update_review_date(ticker, review_date)
         except ValueError:
             await update.message.reply_text(t("review_invalid"))
+            return
+        except StockPersistenceError:
+            logger.error(f"Failed to persist review date for {ticker}")
+            await update.message.reply_text(t("review_save_failed", ticker=ticker))
             return
 
         if not updated:

@@ -68,6 +68,7 @@ STRINGS = {
     "review_ok": "✅ ${ticker} 的复查日期已设为 {review_date}",
     "review_cleared": "✅ 已清除 ${ticker} 的复查日期",
     "review_not_found": "⚠️ ${ticker} 不在关注列表中",
+    "review_save_failed": "❌ 无法保存 ${ticker} 的复查日期",
 
     # /remove
     "remove_usage": "❌ 用法: /remove <代码>\n示例: /remove AAPL",
